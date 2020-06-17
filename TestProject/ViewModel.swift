@@ -84,13 +84,9 @@ final class ViewModel {
             .map { `self`, page -> (Int, Filter) in (page, self.filter.value) }
             .flatMapLatest(NetworkManager.shared.fetchItems)
             .subscribe(onNext: { [weak self] response in
-                guard let self = self else { return }
-                response.meta.next_page == 2 || response.meta.next_page == 0
-                    ? self.items = response.data
-                    : self.items.append(contentsOf: response.data)
-                
-                self.nextPage = response.meta.next_page
-                self.itemFetchFinished.onNext(())
+                self?.setItems(using: response.meta.next_page, data: response.data)
+                self?.nextPage = response.meta.next_page
+                self?.itemFetchFinished.onNext(())
             }, onError: { [weak self] (error) in
                 self?.itemFetchFinished.onError(error)
             }).disposed(by: disposeBag)
@@ -107,6 +103,12 @@ final class ViewModel {
                 self.like.accept(!self.like.value)
             })
             .disposed(by: disposeBag)
+    }
+    
+    private func setItems(using nextPage: Int, data: [Data]) {
+        nextPage == 2 || nextPage == 0
+            ? self.items = data
+            : self.items.append(contentsOf: data)
     }
     
     func updatePageIfNeeded(row: Int) {
