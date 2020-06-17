@@ -102,6 +102,15 @@ final class ViewController: UIViewController {
             let filter = item.rx.tap.map { _ in item.filter }
             filter.bind(to: viewModel.filter).disposed(by: disposeBag)
         }
+        
+        tableView.rx.willDisplayCell
+            .subscribe(onNext: { [weak self] (_, indexPath) in
+                guard let self = self else { return }
+                if let nextPage = self.viewModel.availableNextPageIfCan(),
+                    self.viewModel.items.count - 1 == indexPath.row {
+                    self.viewModel.currentPage.accept(nextPage)
+                }
+            }).disposed(by: disposeBag)
     }
     
     private func bindOutput() {
@@ -148,12 +157,5 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         cell.configure(item: viewModel.items[indexPath.row])
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let nextPage = viewModel.availableNextPageIfCan(),
-           viewModel.items.count - 1 == indexPath.row {
-            viewModel.currentPage.accept(nextPage)
-        }
     }
 }
