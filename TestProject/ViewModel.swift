@@ -49,6 +49,10 @@ final class ViewModel {
     private func resetPage() {
         self.currentPage.accept(initalPage)
     }
+    
+    private func availableNextPageIfCan() -> Int? {
+        (isNextPageExist && !isFetchingNextPage) ? nextPage : nil
+    }
 
     let currentPage = BehaviorRelay<Int>(value: 1)
     let filter = BehaviorRelay<Filter>(value: .newest)
@@ -105,7 +109,10 @@ final class ViewModel {
             .disposed(by: disposeBag)
     }
     
-    func availableNextPageIfCan() -> Int? {
-        (isNextPageExist && !isFetchingNextPage) ? nextPage : nil
+    func updatePageIfNeeded(row: Int) {
+        if let nextPage = availableNextPageIfCan(),
+            items.count - 1 == row {
+            currentPage.accept(nextPage)
+        }
     }
 }

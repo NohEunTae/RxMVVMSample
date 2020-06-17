@@ -105,11 +105,7 @@ final class ViewController: UIViewController {
         
         tableView.rx.willDisplayCell
             .subscribe(onNext: { [weak self] (_, indexPath) in
-                guard let self = self else { return }
-                if let nextPage = self.viewModel.availableNextPageIfCan(),
-                    self.viewModel.items.count - 1 == indexPath.row {
-                    self.viewModel.currentPage.accept(nextPage)
-                }
+                self?.viewModel.updatePageIfNeeded(row: indexPath.row)
             }).disposed(by: disposeBag)
     }
     
