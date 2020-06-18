@@ -35,7 +35,6 @@ final class ViewModel {
     // Related Input (UserInteraction)
     let currentPage = BehaviorRelay<Int>(value: 1)
     let filter = BehaviorRelay<Filter>(value: .newest)
-    
     let purchaseTap = PublishRelay<Void>()
     let likeTap = PublishRelay<Void>()
     
@@ -46,6 +45,7 @@ final class ViewModel {
     let like = BehaviorSubject<Bool>(value: false)
     let error = PublishRelay<Error>()
 
+    
     private(set) var items: [Data] = []
     private var disposeBag = DisposeBag()
     
