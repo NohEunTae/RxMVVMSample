@@ -105,20 +105,18 @@ final class ViewController: UIViewController {
         
         tableView.rx.willDisplayCell
             .subscribe(onNext: { [weak self] (_, indexPath) in
-                guard let self = self else { return }
-                if let nextPage = self.viewModel.availableNextPageIfCan(),
-                    self.viewModel.items.count - 1 == indexPath.row {
-                    self.viewModel.currentPage.accept(nextPage)
-                }
+                self?.viewModel.updatePageIfNeeded(row: indexPath.row)
             }).disposed(by: disposeBag)
     }
     
     private func bindOutput() {
+        viewModel.error.subscribe(onNext: { error in
+            print("Error : \(error.localizedDescription)")
+        }).disposed(by: disposeBag)
+        
         viewModel.itemFetchFinished
             .subscribe(onNext: { [weak self] _ in
                 self?.tableView.reloadData()
-            }, onError: { error in
-                // Error handling
             }).disposed(by: disposeBag)
         
         viewModel.filter
@@ -139,8 +137,6 @@ final class ViewController: UIViewController {
             let alert = UIAlertController(title: "구매하기", message: "성공", preferredStyle: .alert)
             alert.addAction(.init(title: "확인", style: .cancel, handler: nil))
             self?.present(alert, animated: true, completion: nil)
-        }, onError: { (error) in
-            // Error Handling
         }).disposed(by: disposeBag)
     }
 }
