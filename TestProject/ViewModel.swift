@@ -53,19 +53,21 @@ final class ViewModel {
     private func availableNextPageIfCan() -> Int? {
         (isNextPageExist && !isFetchingNextPage) ? nextPage : nil
     }
-
+    
+    // Related Input (UserInteraction)
     let currentPage = BehaviorRelay<Int>(value: 1)
     let filter = BehaviorRelay<Filter>(value: .newest)
-
+    
+    let purchaseTap = PublishRelay<Void>()
+    let likeTap = PublishRelay<Void>()
+    
+    
+    // Related Output
     let itemFetchFinished = PublishSubject<Void>()
     private(set) var items: [Data] = []
     
-    let purchaseTap = PublishRelay<Void>()
-    let purchase = PublishRelay<Void>()
-    
-    let likeTap = PublishRelay<Void>()
-    let like = BehaviorRelay<Bool>(value: false)
-    
+    let purchase = PublishSubject<Void>()
+    let like = BehaviorSubject<Bool>(value: false)
     let error = PublishRelay<Error>()
     
     private var disposeBag = DisposeBag()
@@ -96,7 +98,8 @@ final class ViewModel {
                 case .failure(let error):
                     self?.error.accept(error)
                 }
-                
+            }, onError: { [weak self] error in
+                self?.itemFetchFinished.on(.error(error))
             }).disposed(by: disposeBag)
 
         purchaseTap
@@ -104,10 +107,12 @@ final class ViewModel {
             .subscribe(onNext: { [weak self] result in
                 switch result {
                 case .success:
-                    self?.purchase.accept(())
+                    self?.purchase.on(.next(()))
                 case .failure(let error):
                     self?.error.accept(error)
                 }
+            }, onError: { [weak self] error in
+                self?.purchase.on(.error(error))
             })
             .disposed(by: disposeBag)
         
@@ -117,10 +122,16 @@ final class ViewModel {
                 guard let self = self else {return }
                 switch result {
                 case .success:
-                    self.like.accept(!self.like.value)
+                    do {
+                        self.like.on(.next(try !self.like.value()))
+                    } catch {
+                        self.like.on(.error(error))
+                    }
                 case .failure(let error):
                     self.error.accept(error)
                 }
+            }, onError: { [weak self] error in
+                self?.like.on(.error(error))
             })
             .disposed(by: disposeBag)
     }
