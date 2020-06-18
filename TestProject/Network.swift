@@ -36,8 +36,8 @@ final class Response: Equatable {
     }
 }
 
-func request(url: String, parameters: Alamofire.Parameters?) -> Single<Response> {
-    return Single<Response>.create { single -> Disposable in
+func request(url: String, parameters: Alamofire.Parameters?) -> Single<NetworkResult<Response>> {
+    return Single<NetworkResult<Response>>.create { single -> Disposable in
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
             var response = Response()
             /* ---------------------------- for test ---------------------------- */
@@ -59,7 +59,7 @@ func request(url: String, parameters: Alamofire.Parameters?) -> Single<Response>
             /* ------------------------------------------------------------------- */
 
             DispatchQueue.main.async {
-                single(.success(response))
+                single(.success(.success(response)))
             }
         }
         return Disposables.create()
@@ -69,7 +69,7 @@ func request(url: String, parameters: Alamofire.Parameters?) -> Single<Response>
 final class NetworkManager {
     static let shared = NetworkManager()
     
-    func fetchItems(page: Int, filter: Filter) -> Single<Response> {
+    func fetchItems(page: Int, filter: Filter) -> Single<NetworkResult<Response>> {
         let url = ""
         let params: [String: Any] = [
             "page" : page,
@@ -80,11 +80,16 @@ final class NetworkManager {
         return request(url: url, parameters: params)
     }
     
-    func purchaseItem() -> Single<Response> {
+    func purchaseItem() -> Single<NetworkResult<Response>> {
         return request(url: "", parameters: nil)
     }
     
-    func like() -> Single<Response> {
+    func like() -> Single<NetworkResult<Response>> {
         return request(url: "", parameters: nil)
     }
+}
+
+enum NetworkResult<T> {
+    case success(T)
+    case failure(Error)
 }

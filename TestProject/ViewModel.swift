@@ -60,9 +60,11 @@ final class ViewModel {
     let itemFetchFinished = PublishSubject<Void>()
     private(set) var items: [Data] = []
     
-    let purchaseTap = PublishSubject<Void>()
-    let likeTap = PublishSubject<Void>()
+    let purchaseTap = PublishRelay<Void>()
+    let likeTap = PublishRelay<Void>()
     let like = BehaviorRelay<Bool>(value: false)
+    
+    let error = PublishRelay<Error>()
     
     private var disposeBag = DisposeBag()
     
@@ -83,24 +85,37 @@ final class ViewModel {
             .withUnretained(self)
             .map { `self`, page -> (Int, Filter) in (page, self.filter.value) }
             .flatMapLatest(NetworkManager.shared.fetchItems)
-            .subscribe(onNext: { [weak self] response in
-                self?.setItems(using: response.meta.next_page, data: response.data)
-                self?.nextPage = response.meta.next_page
-                self?.itemFetchFinished.onNext(())
-            }, onError: { [weak self] (error) in
-                self?.itemFetchFinished.onError(error)
+            .subscribe(onNext: { [weak self] result in
+                switch result {
+                case .success(let response):
+                    self?.setItems(using: response.meta.next_page, data: response.data)
+                    self?.nextPage = response.meta.next_page
+                    self?.itemFetchFinished.on(.next(()))
+                case .failure(let error):
+                    self?.error.accept(error)
+                }
+                
             }).disposed(by: disposeBag)
 
         purchaseTap
             .flatMapLatest(NetworkManager.shared.purchaseItem)
-            .subscribe()
+            .subscribe(onNext: { [weak self] result in
+                if case .failure(let error) = result {
+                    self?.error.accept(error)
+                }
+            })
             .disposed(by: disposeBag)
         
         likeTap
             .flatMapLatest(NetworkManager.shared.like)
-            .subscribe({ [weak self] _ in
+            .subscribe(onNext: { [weak self] result in
                 guard let self = self else {return }
-                self.like.accept(!self.like.value)
+                switch result {
+                case .success:
+                    self.like.accept(!self.like.value)
+                case .failure(let error):
+                    self.error.accept(error)
+                }
             })
             .disposed(by: disposeBag)
     }
