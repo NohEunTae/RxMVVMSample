@@ -126,19 +126,21 @@ final class ViewController: UIViewController {
                 self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
             }).disposed(by: disposeBag)
 
-        viewModel.like.subscribe(onNext: { [weak self] value in
-            let alert = UIAlertController(title: "좋아요 변경 \(value)", message: "성공", preferredStyle: .alert)
-            alert.addAction(.init(title: "확인", style: .cancel, handler: { _ in
-                self?.likeButton.isSelected = value
-            }))
-            self?.present(alert, animated: true, completion: nil)
-        }).disposed(by: disposeBag)
+        viewModel.like
+            .subscribe(onNext: { [weak self] value in
+                let alert = UIAlertController(title: "좋아요 변경 \(value)", message: "성공", preferredStyle: .alert)
+                alert.addAction(.init(title: "확인", style: .cancel, handler: { _ in
+                    self?.likeButton.isSelected = value
+                }))
+                self?.present(alert, animated: true, completion: nil)
+            }).disposed(by: disposeBag)
         
-        viewModel.purchaseTap.subscribe(onNext: { [weak self] _ in
-            let alert = UIAlertController(title: "구매하기", message: "성공", preferredStyle: .alert)
-            alert.addAction(.init(title: "확인", style: .cancel, handler: nil))
-            self?.present(alert, animated: true, completion: nil)
-        }).disposed(by: disposeBag)
+        viewModel.purchaseTap
+            .subscribe(onNext: { [weak self] _ in
+                let alert = UIAlertController(title: "구매하기", message: "성공", preferredStyle: .alert)
+                alert.addAction(.init(title: "확인", style: .cancel, handler: nil))
+                self?.present(alert, animated: true, completion: nil)
+            }).disposed(by: disposeBag)
     }
 }
 
