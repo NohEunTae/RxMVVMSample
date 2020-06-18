@@ -31,6 +31,24 @@ final class Data: Equatable {
 }
 
 final class ViewModel {
+    
+    // Related Input (UserInteraction)
+    let currentPage = BehaviorRelay<Int>(value: 1)
+    let filter = BehaviorRelay<Filter>(value: .newest)
+    
+    let purchaseTap = PublishRelay<Void>()
+    let likeTap = PublishRelay<Void>()
+    
+    
+    // Related Output
+    let itemFetchFinished = PublishSubject<Void>()
+    let purchase = PublishSubject<Void>()
+    let like = BehaviorSubject<Bool>(value: false)
+    let error = PublishRelay<Error>()
+
+    private(set) var items: [Data] = []
+    private var disposeBag = DisposeBag()
+    
     private let initalPage = 1
     private(set) var nextPage: Int?
     
@@ -53,25 +71,7 @@ final class ViewModel {
     private func availableNextPageIfCan() -> Int? {
         (isNextPageExist && !isFetchingNextPage) ? nextPage : nil
     }
-    
-    // Related Input (UserInteraction)
-    let currentPage = BehaviorRelay<Int>(value: 1)
-    let filter = BehaviorRelay<Filter>(value: .newest)
-    
-    let purchaseTap = PublishRelay<Void>()
-    let likeTap = PublishRelay<Void>()
-    
-    
-    // Related Output
-    let itemFetchFinished = PublishSubject<Void>()
-    private(set) var items: [Data] = []
-    
-    let purchase = PublishSubject<Void>()
-    let like = BehaviorSubject<Bool>(value: false)
-    let error = PublishRelay<Error>()
-    
-    private var disposeBag = DisposeBag()
-    
+
     init() {
         bind()
     }
