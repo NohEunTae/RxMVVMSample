@@ -61,6 +61,8 @@ final class ViewModel {
     private(set) var items: [Data] = []
     
     let purchaseTap = PublishRelay<Void>()
+    let purchase = PublishRelay<Void>()
+    
     let likeTap = PublishRelay<Void>()
     let like = BehaviorRelay<Bool>(value: false)
     
@@ -100,7 +102,10 @@ final class ViewModel {
         purchaseTap
             .flatMapLatest(NetworkManager.shared.purchaseItem)
             .subscribe(onNext: { [weak self] result in
-                if case .failure(let error) = result {
+                switch result {
+                case .success:
+                    self?.purchase.accept(())
+                case .failure(let error):
                     self?.error.accept(error)
                 }
             })

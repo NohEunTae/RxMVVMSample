@@ -135,7 +135,7 @@ final class ViewController: UIViewController {
                 self?.present(alert, animated: true, completion: nil)
             }).disposed(by: disposeBag)
         
-        viewModel.purchaseTap
+        viewModel.purchase
             .subscribe(onNext: { [weak self] _ in
                 let alert = UIAlertController(title: "구매하기", message: "성공", preferredStyle: .alert)
                 alert.addAction(.init(title: "확인", style: .cancel, handler: nil))
