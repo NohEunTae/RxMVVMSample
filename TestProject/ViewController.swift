@@ -110,9 +110,10 @@ final class ViewController: UIViewController {
     }
     
     private func bindOutput() {
-        viewModel.error.subscribe(onNext: { error in
-            print("Error : \(error.localizedDescription)")
-        }).disposed(by: disposeBag)
+        viewModel.error
+            .subscribe(onNext: { error in
+                print("Error : \(error.localizedDescription)")
+            }).disposed(by: disposeBag)
         
         viewModel.itemFetchFinished
             .subscribe(onNext: { [weak self] _ in
