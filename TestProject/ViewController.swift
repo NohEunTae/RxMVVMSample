@@ -120,7 +120,7 @@ final class ViewController: UIViewController {
                 self?.tableView.reloadData()
             }).disposed(by: disposeBag)
         
-        viewModel.filter
+        viewModel.filterChanged
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self, self.tableView.visibleCells.isNotEmpty else { return }
                 self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)

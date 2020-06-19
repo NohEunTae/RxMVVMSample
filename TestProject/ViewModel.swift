@@ -41,6 +41,7 @@ final class ViewModel {
     
     // Related Output
     let itemFetchFinished = PublishSubject<Void>()
+    let filterChanged = PublishRelay<Filter>()
     let purchase = PublishSubject<Void>()
     let like = BehaviorSubject<Bool>(value: false)
     let error = PublishRelay<Error>()
@@ -94,9 +95,13 @@ final class ViewModel {
                 self?.itemFetchFinished.on(.error(error))
             }).disposed(by: disposeBag)
         
-        let filterChanged = filter.skip(1)
-        filterChanged
+        filter
             .distinctUntilChanged()
+            .skip(1)
+            .bind(to: filterChanged)
+            .disposed(by: disposeBag)
+
+        filterChanged
             .subscribe(onNext: { [weak self] _ in
                 self?.resetPage()
             })
