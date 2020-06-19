@@ -19,7 +19,7 @@ final class Data: Equatable {
         lhs.age == rhs.age && lhs.name == rhs.name && lhs.value == rhs.value
     }
     
-    var value: Int
+    let value: Int
     let name: String
     let age: Int
     

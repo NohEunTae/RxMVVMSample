@@ -10,25 +10,17 @@ import Foundation
 import RxSwift
 import Alamofire
 
-final class Meta: Equatable {
-    static func == (lhs: Meta, rhs: Meta) -> Bool {
-        lhs.next_page == rhs.next_page
-    }
-    
-    var next_page: Int
+final class Meta {
+    let next_page: Int
     
     init(next_page: Int = 0) {
         self.next_page = next_page
     }
 }
 
-final class Response: Equatable {
-    static func == (lhs: Response, rhs: Response) -> Bool {
-        lhs.data == rhs.data && lhs.meta == rhs.meta
-    }
-    
-    var data: [Data]
-    private(set) var meta: Meta
+final class Response {
+    let data: [Data]
+    let meta: Meta
     
     init(data: [Data] = [], meta: Meta = Meta()) {
         self.data = data
