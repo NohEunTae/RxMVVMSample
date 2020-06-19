@@ -77,14 +77,6 @@ final class ViewModel {
     }
     
     private func bind() {
-        filter
-            .skip(initalPage)
-            .distinctUntilChanged()
-            .subscribe(onNext: { [weak self] _ in
-                self?.resetPage()
-            })
-            .disposed(by: disposeBag)
-        
         currentPage
             .withUnretained(self)
             .map { `self`, page -> (Int, Filter) in (page, self.filter.value) }
@@ -101,6 +93,14 @@ final class ViewModel {
             }, onError: { [weak self] error in
                 self?.itemFetchFinished.on(.error(error))
             }).disposed(by: disposeBag)
+        
+        let filterChanged = filter.skip(1)
+        filterChanged
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] _ in
+                self?.resetPage()
+            })
+            .disposed(by: disposeBag)
 
         purchaseTap
             .flatMapLatest(NetworkManager.shared.purchaseItem)
